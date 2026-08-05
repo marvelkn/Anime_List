@@ -34,7 +34,15 @@ A sleek, modern Android application for discovering and tracking your favorite a
 
 ## 📱 Screenshots
 
-*(Add screenshots of your Home Screen, Detail Screen, and My List here!)*
+<p align="center">
+  <img src="screenshots/Screenshot_20260805_121316_AniVault.jpg" width="220" />
+  <img src="screenshots/Screenshot_20260805_121323_AniVault.jpg" width="220" />
+  <img src="screenshots/Screenshot_20260805_121329_AniVault.jpg" width="220" />
+  <img src="screenshots/Screenshot_20260805_121333_AniVault.jpg" width="220" />
+  <img src="screenshots/Screenshot_20260805_121344_AniVault.jpg" width="220" />
+  <img src="screenshots/Screenshot_20260805_121411_AniVault.jpg" width="220" />
+  <img src="screenshots/Screenshot_20260805_121414_AniVault.jpg" width="220" />
+</p>
 
 ## 🚀 Getting Started
 
