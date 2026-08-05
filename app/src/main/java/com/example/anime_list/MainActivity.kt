@@ -24,6 +24,9 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Use our custom Toolbar instead of the default ActionBar
+        setSupportActionBar(binding.toolbar)
+
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
@@ -33,30 +36,63 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.navView.setupWithNavController(navController)
+
+        // Update subtitle dynamically per destination
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            supportActionBar?.subtitle = when (destination.id) {
+                R.id.navigation_home     -> "Your Anime Universe"
+                R.id.navigation_my_list  -> "Saved anime"
+                R.id.navigation_about    -> "Creator Info"
+                else                     -> null
+            }
+            invalidateOptionsMenu() // Refresh menu visibility based on destination
+        }
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        val currentDestination = navController.currentDestination?.id
+        val searchItem = menu?.findItem(R.id.action_search)
+        
+        // Hide search if we are on About page
+        if (currentDestination == R.id.navigation_about) {
+            searchItem?.isVisible = false
+        } else {
+            searchItem?.isVisible = true
+        }
+        
+        return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
 
-        // Wire up the SearchView
         val searchItem = menu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as? SearchView
-        searchView?.queryHint = "Search anime..."
+        searchView?.queryHint = "Search all anime..."
+        searchView?.maxWidth = Int.MAX_VALUE
+        
+        // Fix text color for SearchView
+        val searchAutoComplete = searchView?.findViewById<androidx.appcompat.widget.SearchView.SearchAutoComplete>(androidx.appcompat.R.id.search_src_text)
+        searchAutoComplete?.setTextColor(android.graphics.Color.WHITE)
+        searchAutoComplete?.setHintTextColor(android.graphics.Color.parseColor("#888888"))
 
         searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                SearchBridge.onQueryChanged?.invoke(query ?: "")
+                SearchBridge.onQueryChanged?.invoke(query?.trim() ?: "")
+                searchView.clearFocus() // Hide keyboard but keep search open
                 return true
             }
-
             override fun onQueryTextChange(newText: String?): Boolean {
-                SearchBridge.onQueryChanged?.invoke(newText ?: "")
+                SearchBridge.onQueryChanged?.invoke(newText?.trim() ?: "")
                 return true
             }
         })
 
         searchItem?.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
-            override fun onMenuItemActionExpand(item: MenuItem): Boolean = true
+            override fun onMenuItemActionExpand(item: MenuItem): Boolean {
+                // Keep expanded when keyboard closes
+                return true
+            }
             override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
                 SearchBridge.onSearchClosed?.invoke()
                 return true

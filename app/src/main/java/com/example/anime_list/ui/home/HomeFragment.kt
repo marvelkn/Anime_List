@@ -79,7 +79,7 @@ class HomeFragment : Fragment() {
 
         // First load
         animeAdapter = AnimeAdapter(
-            animeList = emptyList(),
+            animeList = fullAnimeList.toList(),
             onItemClick = { openDetail(it) },
             onMoreClick = { anime, v -> showPopupMenu(anime, v) },
             onItemLongClick = { anime, v ->
@@ -90,7 +90,12 @@ class HomeFragment : Fragment() {
         )
         binding.rvAnime.adapter = animeAdapter
 
-        loadNextPage()
+        if (fullAnimeList.isEmpty()) {
+            loadNextPage()
+        } else {
+            setupFeatured(fullAnimeList.take(5))
+            updateSectionTitle()
+        }
     }
 
     // ─── Pagination ────────────────────────────────────────────────────────────
@@ -100,7 +105,7 @@ class HomeFragment : Fragment() {
         isLoading = true
         binding.pbLoadingMore.visibility = View.VISIBLE
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             try {
                 // Jikan rate-limits: add small delay after page 1 to avoid 429
                 if (currentPage > 1) delay(400)
@@ -116,7 +121,7 @@ class HomeFragment : Fragment() {
                             // First load: setup featured and show list
                             fullAnimeList.clear()
                             fullAnimeList.addAll(newItems)
-                            setupFeatured(fullAnimeList.firstOrNull())
+                            setupFeatured(fullAnimeList.take(5))
                             animeAdapter.updateList(fullAnimeList.toList())
                         } else {
                             // Append new items
@@ -151,8 +156,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateSectionTitle() {
-        val count = fullAnimeList.size
-        binding.tvSectionTitle.text = "Top Anime  ($count loaded)"
+        binding.tvSectionTitle.text = "Top Anime"
     }
 
     // ─── Search ────────────────────────────────────────────────────────────────
@@ -162,7 +166,7 @@ class HomeFragment : Fragment() {
         isSearchActive = query.isNotBlank()
 
         if (query.isBlank()) {
-            binding.tvSectionTitle.text = "Top Anime  (${fullAnimeList.size} loaded)"
+            binding.tvSectionTitle.text = "Top Anime"
             animeAdapter.updateList(fullAnimeList.toList())
             return
         }
@@ -173,7 +177,7 @@ class HomeFragment : Fragment() {
         animeAdapter.updateList(local)
 
         // Then broader API search (debounced)
-        searchJob = lifecycleScope.launch(Dispatchers.IO) {
+        searchJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             delay(700)
             try {
                 val response = ApiClient.instance.searchAnime(query)
@@ -182,7 +186,7 @@ class HomeFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         if (results.isNotEmpty()) {
                             animeAdapter.updateList(results)
-                            binding.tvSectionTitle.text = "Results for \"$query\"  (${results.size})"
+                            binding.tvSectionTitle.text = "Results for \"$query\""
                         }
                     }
                 }
@@ -202,30 +206,119 @@ class HomeFragment : Fragment() {
         }
         binding.chipScore.setOnClickListener {
             if (isSearchActive) return@setOnClickListener
-            binding.tvSectionTitle.text = "⭐ By Top Score  (${fullAnimeList.size})"
+            binding.tvSectionTitle.text = "⭐ By Top Score"
             animeAdapter.updateList(fullAnimeList.sortedByDescending { it.score ?: 0.0 })
         }
         binding.chipTitle.setOnClickListener {
             if (isSearchActive) return@setOnClickListener
-            binding.tvSectionTitle.text = "🔤 A – Z  (${fullAnimeList.size})"
+            binding.tvSectionTitle.text = "🔤 A – Z"
             animeAdapter.updateList(fullAnimeList.sortedBy { it.title })
         }
         binding.chipEpisodes.setOnClickListener {
             if (isSearchActive) return@setOnClickListener
-            binding.tvSectionTitle.text = "📺 Most Episodes  (${fullAnimeList.size})"
+            binding.tvSectionTitle.text = "📺 Most Episodes"
             animeAdapter.updateList(fullAnimeList.sortedByDescending { it.episodes ?: 0 })
+        }
+        
+        // Genre Chips (trigger API search)
+        binding.chipAction.setOnClickListener { searchByGenre("1", "Action") }
+        binding.chipRomance.setOnClickListener { searchByGenre("22", "Romance") }
+        binding.chipComedy.setOnClickListener { searchByGenre("4", "Comedy") }
+        binding.chipAdventure.setOnClickListener { searchByGenre("2", "Adventure") }
+    }
+
+    private fun searchByGenre(genreId: String, genreName: String) {
+        searchJob?.cancel()
+        isLoading = true
+        binding.pbLoadingMore.visibility = View.VISIBLE
+        binding.tvSectionTitle.text = "Loading $genreName Anime..."
+
+        searchJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                // We use searchAnime with an empty query but specifying the genre
+                val response = ApiClient.instance.searchAnime(query = "", genres = genreId)
+                if (response.isSuccessful) {
+                    val results = response.body()?.data ?: emptyList()
+                    withContext(Dispatchers.Main) {
+                        if (results.isNotEmpty()) {
+                            animeAdapter.updateList(results)
+                            binding.tvSectionTitle.text = "🍿 Top $genreName Anime"
+                        } else {
+                            binding.tvSectionTitle.text = "No $genreName Anime Found"
+                        }
+                        binding.pbLoadingMore.visibility = View.GONE
+                        isLoading = false
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    binding.tvSectionTitle.text = "Error Loading $genreName"
+                    binding.pbLoadingMore.visibility = View.GONE
+                    isLoading = false
+                }
+            }
         }
     }
 
     // ─── Featured banner ───────────────────────────────────────────────────────
 
-    private fun setupFeatured(anime: Anime?) {
-        if (anime == null) return
-        binding.tvFeaturedTitle.text = anime.title
-        binding.tvFeaturedScore.text = "⭐ ${anime.score ?: "N/A"}  ·  ${anime.episodes ?: "?"} eps"
-        Glide.with(this).load(anime.images.jpg.largeImageUrl).into(binding.ivFeatured)
-        binding.btnFeaturedPlay.setOnClickListener { openDetail(anime) }
-        binding.btnFeaturedInfo.setOnClickListener { openDetail(anime) }
+    private var carouselJob: Job? = null
+
+    private fun setupFeatured(animes: List<Anime>) {
+        if (animes.isEmpty()) return
+        
+        val adapter = FeaturedPagerAdapter(
+            featuredAnime = animes,
+            onPlayClick = { openDetail(it) },
+            onInfoClick = { openDetail(it) }
+        )
+        binding.vpFeatured.adapter = adapter
+        
+        // Setup dots
+        setupDots(animes.size)
+        binding.vpFeatured.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                updateDots(position, animes.size)
+            }
+        })
+
+        // Auto-scroll carousel every 4 seconds
+        carouselJob?.cancel()
+        carouselJob = viewLifecycleOwner.lifecycleScope.launch {
+            while (true) {
+                delay(4000)
+                if (animes.size > 1) {
+                    val nextItem = (binding.vpFeatured.currentItem + 1) % animes.size
+                    binding.vpFeatured.setCurrentItem(nextItem, true)
+                }
+            }
+        }
+    }
+
+    private fun setupDots(count: Int) {
+        binding.layoutDots.removeAllViews()
+        for (i in 0 until count) {
+            val dot = android.widget.ImageView(requireContext())
+            dot.setImageDrawable(androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.dot_inactive))
+            val params = android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            params.setMargins(8, 0, 8, 0)
+            binding.layoutDots.addView(dot, params)
+        }
+        updateDots(0, count)
+    }
+
+    private fun updateDots(position: Int, count: Int) {
+        for (i in 0 until count) {
+            val dot = binding.layoutDots.getChildAt(i) as? android.widget.ImageView
+            if (i == position) {
+                dot?.setImageDrawable(androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.dot_active))
+            } else {
+                dot?.setImageDrawable(androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.dot_inactive))
+            }
+        }
     }
 
     // ─── Navigation ────────────────────────────────────────────────────────────
@@ -290,8 +383,12 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        searchJob?.cancel()
+        carouselJob?.cancel()
         SearchBridge.onQueryChanged = null
         SearchBridge.onSearchClosed = null
+        isLoading = false
+        isSearchActive = false
         _binding = null
     }
 }

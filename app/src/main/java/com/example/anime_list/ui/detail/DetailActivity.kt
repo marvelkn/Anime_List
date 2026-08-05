@@ -1,5 +1,6 @@
 package com.example.anime_list.ui.detail
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -8,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.anime_list.data.model.Anime
 import com.example.anime_list.data.remote.ApiClient
@@ -36,6 +38,7 @@ class DetailActivity : AppCompatActivity() {
         anime?.let {
             displayAnimeDetails(it)
             loadReviews(it.malId)
+            loadRecommendations(it.malId)
         }
     }
 
@@ -87,33 +90,106 @@ class DetailActivity : AppCompatActivity() {
 
     private fun updateRatingLabel(rating: Float) {
         binding.tvUserRatingLabel.text = if (rating == 0f) "Tap to rate"
-        else "Your rating: $rating / 10"
+        else "Your rating: $rating / 5"
     }
 
     private fun loadReviews(animeId: Int) {
         lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val response = ApiClient.instance.getAnimeReviews(animeId)
-                withContext(Dispatchers.Main) {
-                    if (response.isSuccessful) {
-                        val reviews = response.body()?.data ?: emptyList()
-                        binding.tvReviewsLoading.visibility = View.GONE
-                        if (reviews.isNotEmpty()) {
-                            binding.rvReviews.visibility = View.VISIBLE
-                            binding.rvReviews.layoutManager = LinearLayoutManager(this@DetailActivity)
-                            binding.rvReviews.adapter = ReviewAdapter(reviews.take(5))
+            var retryCount = 0
+            while (retryCount < 3) {
+                try {
+                    val response = ApiClient.instance.getAnimeReviews(animeId, preliminary = true)
+                    withContext(Dispatchers.Main) {
+                        if (response.isSuccessful) {
+                            val reviews = response.body()?.data ?: emptyList()
+                            binding.tvReviewsLoading.visibility = View.GONE
+                            if (reviews.isNotEmpty()) {
+                                binding.rvReviews.visibility = View.VISIBLE
+                                binding.rvReviews.layoutManager = LinearLayoutManager(this@DetailActivity)
+                                binding.rvReviews.adapter = ReviewAdapter(reviews.take(5))
+                            } else {
+                                binding.tvReviewsLoading.text = "No reviews yet."
+                                binding.tvReviewsLoading.visibility = View.VISIBLE
+                            }
+                            retryCount = 3 // Success, exit loop
+                        } else if (response.code() == 429) {
+                            // Rate limited, wait and retry
+                            if (retryCount == 2) {
+                                binding.tvReviewsLoading.text = "API Limit (Too Many Requests)."
+                            } else {
+                                binding.tvReviewsLoading.text = "Server busy, retrying..."
+                            }
                         } else {
-                            binding.tvReviewsLoading.text = "No reviews yet."
-                            binding.tvReviewsLoading.visibility = View.VISIBLE
+                            binding.tvReviewsLoading.text = "Could not load reviews."
+                            retryCount = 3 // Other error, exit loop
                         }
-                    } else {
+                    }
+                    if (response.code() == 429) {
+                        retryCount++
+                        kotlinx.coroutines.delay(2000)
+                    }
+                } catch (e: Exception) {
+                    Log.e("DetailActivity", "Review load error", e)
+                    withContext(Dispatchers.Main) {
                         binding.tvReviewsLoading.text = "Could not load reviews."
                     }
+                    break
                 }
-            } catch (e: Exception) {
-                Log.e("DetailActivity", "Review load error", e)
-                withContext(Dispatchers.Main) {
-                    binding.tvReviewsLoading.text = "Could not load reviews."
+            }
+        }
+    }
+
+    private fun loadRecommendations(animeId: Int) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            // Delay slightly so it doesn't hit the API at the exact same millisecond as loadReviews
+            kotlinx.coroutines.delay(400)
+            
+            var retryCount = 0
+            while (retryCount < 3) {
+                try {
+                    val response = ApiClient.instance.getAnimeRecommendations(animeId)
+                    withContext(Dispatchers.Main) {
+                        if (response.isSuccessful) {
+                            val recs = response.body()?.data ?: emptyList()
+                            binding.tvRecsLoading.visibility = View.GONE
+                            if (recs.isNotEmpty()) {
+                                binding.rvRecommendations.visibility = View.VISIBLE
+                                binding.rvRecommendations.layoutManager = LinearLayoutManager(
+                                    this@DetailActivity, RecyclerView.HORIZONTAL, false
+                                )
+                                // Take top 10 recommendations
+                                binding.rvRecommendations.adapter = RecommendationAdapter(recs.take(10)) { clickedAnime ->
+                                    startActivity(Intent(this@DetailActivity, DetailActivity::class.java).apply {
+                                        putExtra("ANIME", clickedAnime)
+                                    })
+                                }
+                            } else {
+                                binding.tvRecsLoading.text = "No recommendations yet."
+                                binding.tvRecsLoading.visibility = View.VISIBLE
+                            }
+                            retryCount = 3 // Success, exit loop
+                        } else if (response.code() == 429) {
+                            // Rate limited, wait and retry
+                            if (retryCount == 2) {
+                                binding.tvRecsLoading.text = "API Limit (Too Many Requests)."
+                            } else {
+                                binding.tvRecsLoading.text = "Server busy, retrying..."
+                            }
+                        } else {
+                            binding.tvRecsLoading.text = "Could not load recommendations."
+                            retryCount = 3 // Other error, exit loop
+                        }
+                    }
+                    if (response.code() == 429) {
+                        retryCount++
+                        kotlinx.coroutines.delay(2000)
+                    }
+                } catch (e: Exception) {
+                    Log.e("DetailActivity", "Recs load error", e)
+                    withContext(Dispatchers.Main) {
+                        binding.tvRecsLoading.text = "Could not load recommendations."
+                    }
+                    break
                 }
             }
         }

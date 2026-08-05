@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="ctx_add_list" type="id" />
+    <item name="ctx_share" type="id" />
+    <item name="ctx_detail" type="id" />
+</resources>

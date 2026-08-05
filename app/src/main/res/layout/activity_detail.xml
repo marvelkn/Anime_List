@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:background="@color/netflix_background">
 
     <LinearLayout
@@ -178,11 +179,12 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="10dp"
-            android:numStars="10"
-            android:stepSize="0.5"
+            android:numStars="5"
+            android:stepSize="1.0"
             android:progressTint="@color/netflix_red"
             android:secondaryProgressTint="#555555"
-            style="@style/Widget.AppCompat.RatingBar.Small" />
+            android:progressBackgroundTint="#888888"
+            style="@style/Widget.AppCompat.RatingBar" />
 
         <TextView
             android:id="@+id/tv_user_rating_label"
@@ -227,9 +229,49 @@
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false"
             android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:visibility="gone" />
+
+        <!-- Recommendations section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="More Like This"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="36dp"
+            android:layout_height="2dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:background="@color/netflix_red" />
+
+        <TextView
+            android:id="@+id/tv_recs_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:text="Loading recommendations..."
+            android:textColor="@color/netflix_light_gray"
+            android:textSize="13sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_recommendations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="32dp"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
+            android:clipToPadding="false"
             android:visibility="gone" />
 
     </LinearLayout>

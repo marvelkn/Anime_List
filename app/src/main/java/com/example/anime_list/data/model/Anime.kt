@@ -39,13 +39,31 @@ data class ReviewResponse(
 )
 
 data class Review(
-    @SerializedName("mal_id")  val malId: Int,
-    @SerializedName("review")  val review: String,
-    @SerializedName("score")   val score: Int,
-    @SerializedName("date")    val date: String,
-    @SerializedName("user")    val user: ReviewUser
+    @SerializedName("mal_id")       val malId: Int?,
+    @SerializedName("review")       val review: String?,
+    @SerializedName("score")        val score: Int?,
+    @SerializedName("date")         val date: String?,
+    @SerializedName("is_spoiler")   val isSpoiler: Boolean?,
+    @SerializedName("is_preliminary") val isPreliminary: Boolean?,
+    @SerializedName("user")         val user: ReviewUser?
 )
 
 data class ReviewUser(
-    @SerializedName("username") val username: String
+    @SerializedName("username") val username: String?
+)
+
+// ─── Recommendations ───────────────────────────────────────────
+data class RecommendationResponse(
+    @SerializedName("data") val data: List<RecommendationWrapper>
+)
+
+data class RecommendationWrapper(
+    @SerializedName("entry") val entry: RecommendationEntry?,
+    @SerializedName("votes") val votes: Int
+)
+
+data class RecommendationEntry(
+    @SerializedName("mal_id") val malId: Int,
+    @SerializedName("title")  val title: String,
+    @SerializedName("images") val images: AnimeImages
 )
