@@ -2,58 +2,54 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/netflix_background"
-    tools:context=".ui.about.AboutFragment">
+    android:background="@color/netflix_background">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_horizontal"
+        android:paddingTop="24dp"
         android:paddingBottom="40dp">
 
-        <!-- Header Banner -->
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="160dp">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/about_header_bg" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="ANIME LIST"
-                android:textColor="@color/netflix_red"
-                android:textSize="38sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.15"
-                android:shadowColor="#AA000000"
-                android:shadowRadius="8" />
-
-        </FrameLayout>
-
-        <!-- "Who's watching?" label -->
+        <!-- App logo text -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:text="AniVault"
+            android:textColor="@color/netflix_red"
+            android:textSize="42sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.05"
+            android:shadowColor="#AA000000"
+            android:shadowRadius="8"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your Anime Universe"
+            android:textColor="@color/netflix_light_gray"
+            android:textSize="13sp"
+            android:layout_marginBottom="28dp" />
+
+        <!-- Creator Profile label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Creator Profile"
             android:textColor="@color/white"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
 
-        <!-- Profile Avatar -->
+        <!-- Profile Avatar with red ring -->
         <FrameLayout
             android:layout_width="110dp"
             android:layout_height="110dp"
-            android:layout_marginTop="20dp">
+            android:layout_marginBottom="16dp">
 
             <ImageView
                 android:id="@+id/iv_profile"
@@ -73,17 +69,16 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:text="Marvel Kevin Nathanael"
             android:textColor="@color/white"
             android:textSize="22sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
 
-        <!-- NIM Tag -->
+        <!-- NIM badge -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:background="@drawable/badge_featured"
             android:paddingStart="16dp"
             android:paddingTop="6dp"
@@ -92,14 +87,15 @@
             android:text="NIM: 00000108042"
             android:textColor="@color/white"
             android:textSize="13sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_marginBottom="28dp" />
 
         <!-- Divider -->
         <View
             android:layout_width="60dp"
             android:layout_height="2dp"
-            android:layout_marginTop="28dp"
-            android:background="@color/netflix_red" />
+            android:background="@color/netflix_red"
+            android:layout_marginBottom="24dp" />
 
         <!-- App Info Card -->
         <androidx.cardview.widget.CardView
@@ -107,7 +103,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginEnd="24dp"
-            android:layout_marginTop="24dp"
             app:cardBackgroundColor="#1F1F1F"
             app:cardCornerRadius="12dp"
             app:cardElevation="6dp">
@@ -121,22 +116,25 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="About This App"
+                    android:text="App Info"
                     android:textColor="@color/white"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_marginBottom="14dp" />
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="8dp">
+                <!-- Row -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="App Name" android:textColor="@color/netflix_light_gray" android:textSize="13sp"/>
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Anime List" android:textColor="@color/white" android:textSize="13sp" android:textStyle="bold"/>
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="AniVault" android:textColor="@color/white" android:textSize="13sp" android:textStyle="bold"/>
                 </LinearLayout>
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="8dp">
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="API Source" android:textColor="@color/netflix_light_gray" android:textSize="13sp"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="API" android:textColor="@color/netflix_light_gray" android:textSize="13sp"/>
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Jikan API v4" android:textColor="@color/white" android:textSize="13sp" android:textStyle="bold"/>
                 </LinearLayout>
-
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Language" android:textColor="@color/netflix_light_gray" android:textSize="13sp"/>
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Kotlin" android:textColor="@color/white" android:textSize="13sp" android:textStyle="bold"/>
+                </LinearLayout>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Version" android:textColor="@color/netflix_light_gray" android:textSize="13sp"/>
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="1.0.0" android:textColor="@color/white" android:textSize="13sp" android:textStyle="bold"/>

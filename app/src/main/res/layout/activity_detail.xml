@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/netflix_background"
-    tools:context=".ui.detail.DetailActivity">
+    android:background="@color/netflix_background">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Backdrop + Gradient -->
+        <!-- Backdrop -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp">
+            android:layout_height="280dp">
 
             <ImageView
                 android:id="@+id/iv_backdrop"
@@ -30,25 +28,41 @@
 
         </FrameLayout>
 
+        <!-- Rank badge -->
+        <TextView
+            android:id="@+id/tv_rank_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="-12dp"
+            android:background="@drawable/badge_featured"
+            android:paddingStart="12dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="4dp"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
         <!-- Title -->
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="16dp"
             android:textColor="@color/white"
-            android:textSize="26sp"
+            android:textSize="24sp"
             android:textStyle="bold" />
 
-        <!-- Meta Row: score | episodes | rank -->
+        <!-- Meta row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:layout_marginEnd="16dp">
 
             <TextView
@@ -62,7 +76,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=" · "
+                android:text="  ·  "
                 android:textColor="@color/netflix_light_gray"
                 android:textSize="14sp" />
 
@@ -73,30 +87,15 @@
                 android:textColor="@color/netflix_light_gray"
                 android:textSize="14sp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=" · "
-                android:textColor="@color/netflix_light_gray"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tv_rank"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/netflix_red"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
         </LinearLayout>
 
-        <!-- Play + Add buttons -->
+        <!-- Play + My List buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="14dp"
             android:layout_marginEnd="16dp">
 
             <Button
@@ -108,7 +107,7 @@
                 android:text="▶  Play Now"
                 android:textColor="@color/white"
                 android:textStyle="bold"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 style="@style/Widget.AppCompat.Button" />
 
             <Button
@@ -121,12 +120,12 @@
                 android:text="＋  My List"
                 android:textColor="@color/white"
                 android:textStyle="bold"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 style="@style/Widget.AppCompat.Button" />
 
         </LinearLayout>
 
-        <!-- Synopsis label -->
+        <!-- Synopsis section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -134,28 +133,104 @@
             android:layout_marginTop="20dp"
             android:text="Synopsis"
             android:textColor="@color/white"
-            android:textSize="16sp"
+            android:textSize="15sp"
             android:textStyle="bold" />
 
         <View
-            android:layout_width="40dp"
+            android:layout_width="36dp"
             android:layout_height="2dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="4dp"
             android:background="@color/netflix_red" />
 
-        <!-- Synopsis content -->
         <TextView
             android:id="@+id/tv_synopsis"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="32dp"
             android:textColor="@color/netflix_light_gray"
             android:textSize="14sp"
             android:lineSpacingExtra="4dp" />
+
+        <!-- User Rating section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="22dp"
+            android:text="Your Rating"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="36dp"
+            android:layout_height="2dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:background="@color/netflix_red" />
+
+        <RatingBar
+            android:id="@+id/rating_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:numStars="10"
+            android:stepSize="0.5"
+            android:progressTint="@color/netflix_red"
+            android:secondaryProgressTint="#555555"
+            style="@style/Widget.AppCompat.RatingBar.Small" />
+
+        <TextView
+            android:id="@+id/tv_user_rating_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/netflix_light_gray"
+            android:textSize="12sp" />
+
+        <!-- Community Reviews section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="22dp"
+            android:text="Community Reviews"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="36dp"
+            android:layout_height="2dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:background="@color/netflix_red" />
+
+        <TextView
+            android:id="@+id/tv_reviews_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:text="Loading reviews..."
+            android:textColor="@color/netflix_light_gray"
+            android:textSize="13sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_reviews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="32dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:visibility="gone" />
 
     </LinearLayout>
 </ScrollView>

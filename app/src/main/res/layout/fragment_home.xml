@@ -9,6 +9,7 @@
     tools:context=".ui.home.HomeFragment">
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nested_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -21,7 +22,7 @@
             <FrameLayout
                 android:id="@+id/featured_container"
                 android:layout_width="match_parent"
-                android:layout_height="420dp">
+                android:layout_height="400dp">
 
                 <ImageView
                     android:id="@+id/iv_featured"
@@ -29,157 +30,160 @@
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop" />
 
+                <!-- Full dark gradient overlay -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/gradient_featured" />
 
+                <!-- Content pinned to bottom of banner -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="16dp">
 
+                    <!-- Badge -->
                     <TextView
                         android:id="@+id/tv_featured_badge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/badge_featured"
-                        android:paddingStart="12dp"
-                        android:paddingTop="4dp"
-                        android:paddingEnd="12dp"
-                        android:paddingBottom="4dp"
-                        android:text="🏆 #1 IN ANIME TODAY"
+                        android:paddingStart="10dp"
+                        android:paddingTop="3dp"
+                        android:paddingEnd="10dp"
+                        android:paddingBottom="3dp"
+                        android:text="🏆  #1 IN ANIME TODAY"
                         android:textColor="@color/white"
                         android:textSize="10sp"
                         android:textStyle="bold"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="10dp" />
 
+                    <!-- Featured title -->
                     <TextView
                         android:id="@+id/tv_featured_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/white"
-                        android:textSize="32sp"
+                        android:textSize="28sp"
                         android:textStyle="bold"
+                        android:maxLines="2"
+                        android:ellipsize="end"
                         android:shadowColor="#000"
-                        android:shadowRadius="6"
-                        android:layout_marginBottom="12dp" />
+                        android:shadowRadius="8"
+                        android:layout_marginBottom="6dp" />
 
+                    <!-- Score + eps -->
                     <TextView
                         android:id="@+id/tv_featured_score"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="#46D369"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
+                        android:layout_marginBottom="14dp" />
 
+                    <!-- Buttons row -->
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
                         <Button
                             android:id="@+id/btn_featured_play"
-                            android:layout_width="wrap_content"
-                            android:layout_height="40dp"
+                            android:layout_width="0dp"
+                            android:layout_height="42dp"
+                            android:layout_weight="1"
                             android:backgroundTint="@color/white"
                             android:text="▶  Play"
                             android:textColor="@color/black"
                             android:textStyle="bold"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="20dp"
+                            android:textSize="13sp"
                             style="@style/Widget.AppCompat.Button" />
 
                         <Button
                             android:id="@+id/btn_featured_info"
-                            android:layout_width="wrap_content"
-                            android:layout_height="40dp"
-                            android:backgroundTint="#66FFFFFF"
+                            android:layout_width="0dp"
+                            android:layout_height="42dp"
+                            android:layout_weight="1"
+                            android:backgroundTint="#55FFFFFF"
                             android:text="ℹ  Info"
                             android:textColor="@color/white"
                             android:textStyle="bold"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="20dp"
+                            android:textSize="13sp"
                             android:layout_marginStart="8dp"
                             style="@style/Widget.AppCompat.Button" />
 
                     </LinearLayout>
-
                 </LinearLayout>
             </FrameLayout>
 
-            <!-- Sort/Filter Chips -->
+            <!-- Sort / Filter Chips -->
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:scrollbars="none"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="4dp">
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="2dp">
 
-                <LinearLayout
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chip_group"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:paddingStart="12dp"
-                    android:paddingEnd="12dp">
+                    android:paddingEnd="12dp"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_all"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="All"
-                        android:checkable="true"
-                        android:checked="true"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_marginEnd="6dp" />
+                        android:checked="true" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_score"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="⭐ Top Score"
-                        android:checkable="true"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_marginEnd="6dp" />
+                        android:text="⭐ Top Score" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_title"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🔤 A-Z"
-                        android:checkable="true"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_marginEnd="6dp" />
+                        android:text="🔤 A–Z" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_episodes"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="📺 Episodes"
-                        android:checkable="true"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_marginEnd="6dp" />
+                        android:text="📺 Episodes" />
 
-                </LinearLayout>
+                </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
 
-            <!-- Section Title -->
+            <!-- Section label -->
             <TextView
                 android:id="@+id/tv_section_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="6dp"
                 android:text="Top Anime"
                 android:textColor="@color/white"
-                android:textSize="18sp"
+                android:textSize="17sp"
                 android:textStyle="bold" />
 
-            <!-- Anime Grid -->
+            <!-- Grid of anime cards -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_anime"
                 android:layout_width="match_parent"
@@ -188,6 +192,16 @@
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
                 tools:listitem="@layout/item_anime" />
+
+            <!-- Pagination loading indicator -->
+            <ProgressBar
+                android:id="@+id/pb_loading_more"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

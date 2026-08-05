@@ -1,16 +1,26 @@
 package com.example.anime_list.ui.detail
 
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.anime_list.data.model.Anime
+import com.example.anime_list.data.remote.ApiClient
 import com.example.anime_list.databinding.ActivityDetailBinding
+import com.example.anime_list.util.MyListManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class DetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailBinding
+    private var currentAnime: Anime? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +32,11 @@ class DetailActivity : AppCompatActivity() {
 
         @Suppress("DEPRECATION")
         val anime = intent.getSerializableExtra("ANIME") as? Anime
-        anime?.let { displayAnimeDetails(it) }
+        currentAnime = anime
+        anime?.let {
+            displayAnimeDetails(it)
+            loadReviews(it.malId)
+        }
     }
 
     private fun displayAnimeDetails(anime: Anime) {
@@ -30,26 +44,83 @@ class DetailActivity : AppCompatActivity() {
         binding.tvSynopsis.text = anime.synopsis ?: "No synopsis available."
         binding.tvScore.text = "⭐ Score: ${anime.score ?: "N/A"}"
         binding.tvEpisodes.text = "${anime.episodes ?: "?"} eps"
-        binding.tvRank.text = "Rank #${anime.malId}"
+        binding.tvRankBadge.text = if (anime.rank != null) "RANK #${anime.rank}" else "TOP ANIME"
 
-        Glide.with(this)
-            .load(anime.images.jpg.largeImageUrl)
-            .into(binding.ivBackdrop)
+        Glide.with(this).load(anime.images.jpg.largeImageUrl).into(binding.ivBackdrop)
+
+        // My List button state
+        updateMyListButton(anime)
 
         binding.btnPlay.setOnClickListener {
             Toast.makeText(this, "▶ Playing \"${anime.title}\"...", Toast.LENGTH_SHORT).show()
         }
 
         binding.btnAddList.setOnClickListener {
-            Toast.makeText(this, "✅ \"${anime.title}\" added to My List", Toast.LENGTH_SHORT).show()
+            val ctx = this
+            if (MyListManager.isInList(ctx, anime.malId)) {
+                MyListManager.removeAnime(ctx, anime.malId)
+                Toast.makeText(ctx, "Removed from My List", Toast.LENGTH_SHORT).show()
+            } else {
+                MyListManager.addAnime(ctx, anime)
+                Toast.makeText(ctx, "✅ Added to My List", Toast.LENGTH_SHORT).show()
+            }
+            updateMyListButton(anime)
+        }
+
+        // User rating
+        val savedRating = MyListManager.getUserRating(this, anime.malId)
+        binding.ratingBar.rating = savedRating
+        updateRatingLabel(savedRating)
+
+        binding.ratingBar.setOnRatingBarChangeListener { _, rating, fromUser ->
+            if (fromUser) {
+                MyListManager.saveUserRating(this, anime.malId, rating)
+                updateRatingLabel(rating)
+            }
+        }
+    }
+
+    private fun updateMyListButton(anime: Anime) {
+        val inList = MyListManager.isInList(this, anime.malId)
+        binding.btnAddList.text = if (inList) "✓  In My List" else "＋  My List"
+    }
+
+    private fun updateRatingLabel(rating: Float) {
+        binding.tvUserRatingLabel.text = if (rating == 0f) "Tap to rate"
+        else "Your rating: $rating / 10"
+    }
+
+    private fun loadReviews(animeId: Int) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val response = ApiClient.instance.getAnimeReviews(animeId)
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        val reviews = response.body()?.data ?: emptyList()
+                        binding.tvReviewsLoading.visibility = View.GONE
+                        if (reviews.isNotEmpty()) {
+                            binding.rvReviews.visibility = View.VISIBLE
+                            binding.rvReviews.layoutManager = LinearLayoutManager(this@DetailActivity)
+                            binding.rvReviews.adapter = ReviewAdapter(reviews.take(5))
+                        } else {
+                            binding.tvReviewsLoading.text = "No reviews yet."
+                            binding.tvReviewsLoading.visibility = View.VISIBLE
+                        }
+                    } else {
+                        binding.tvReviewsLoading.text = "Could not load reviews."
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("DetailActivity", "Review load error", e)
+                withContext(Dispatchers.Main) {
+                    binding.tvReviewsLoading.text = "Could not load reviews."
+                }
+            }
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
-        }
+        if (item.itemId == android.R.id.home) { finish(); return true }
         return super.onOptionsItemSelected(item)
     }
 }
