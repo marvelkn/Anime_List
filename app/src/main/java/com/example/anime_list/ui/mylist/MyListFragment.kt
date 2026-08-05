@@ -50,6 +50,7 @@ class MyListFragment : Fragment() {
         binding.rvMyList.layoutManager = GridLayoutManager(requireContext(), 3)
         binding.rvMyList.adapter = AnimeAdapter(
             animeList = list,
+            isMyList = true,
             onItemClick = { anime ->
                 val intent = Intent(requireContext(), DetailActivity::class.java)
                 intent.putExtra("ANIME", anime)

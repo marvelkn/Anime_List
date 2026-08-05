@@ -8,8 +8,11 @@ import com.bumptech.glide.Glide
 import com.example.anime_list.data.model.Anime
 import com.example.anime_list.databinding.ItemAnimeBinding
 
+import com.example.anime_list.util.MyListManager
+
 class AnimeAdapter(
     private var animeList: List<Anime>,
+    private val isMyList: Boolean = false,
     private val onItemClick: (Anime) -> Unit,
     private val onMoreClick: (Anime, View) -> Unit,
     private val onItemLongClick: (Anime, View) -> Unit
@@ -26,6 +29,18 @@ class AnimeAdapter(
                 binding.tvAnimeScore.visibility = View.VISIBLE
             } else {
                 binding.tvAnimeScore.visibility = View.GONE
+            }
+
+            if (isMyList) {
+                val userRating = MyListManager.getUserRating(binding.root.context, anime.malId)
+                if (userRating > 0f) {
+                    binding.tvUserScore.text = "You: ⭐ $userRating"
+                    binding.tvUserScore.visibility = View.VISIBLE
+                } else {
+                    binding.tvUserScore.visibility = View.GONE
+                }
+            } else {
+                binding.tvUserScore.visibility = View.GONE
             }
 
             Glide.with(binding.root.context)
