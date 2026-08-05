@@ -1,54 +1,60 @@
 package com.example.anime_list
 
 import android.os.Bundle
+import android.widget.Toast
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.anime_list.databinding.ActivityMainBinding
-import com.google.android.material.bottomnavigation.BottomNavigationView
-
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.AppBarConfiguration
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val navView: BottomNavigationView = binding.navView
-        val navController = findNavController(R.id.nav_host_fragment)
-        
+        // Cara yang benar untuk mendapatkan NavController saat menggunakan FragmentContainerView
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
+
         val appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.navigation_home, R.id.navigation_about
-            )
+            setOf(R.id.navigation_home, R.id.navigation_about)
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
-        
-        navView.setupWithNavController(navController)
+        binding.navView.setupWithNavController(navController)
     }
 
-    override fun onCreateOptionsMenu(menu: android.view.Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         return true
     }
 
-    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_search -> {
-                android.widget.Toast.makeText(this, "Search clicked", android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Search clicked", Toast.LENGTH_SHORT).show()
                 true
             }
             R.id.action_settings -> {
-                android.widget.Toast.makeText(this, "Settings clicked", android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Settings clicked", Toast.LENGTH_SHORT).show()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 }

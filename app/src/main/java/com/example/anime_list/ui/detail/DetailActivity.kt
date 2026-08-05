@@ -16,10 +16,11 @@ class DetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = ""
 
+        @Suppress("DEPRECATION")
         val anime = intent.getSerializableExtra("ANIME") as? Anime
         anime?.let { displayAnimeDetails(it) }
     }
@@ -27,15 +28,20 @@ class DetailActivity : AppCompatActivity() {
     private fun displayAnimeDetails(anime: Anime) {
         binding.tvTitle.text = anime.title
         binding.tvSynopsis.text = anime.synopsis ?: "No synopsis available."
-        binding.tvScore.text = "Score: ${anime.score ?: "N/A"}"
-        binding.tvEpisodes.text = "Episodes: ${anime.episodes ?: "N/A"}"
+        binding.tvScore.text = "⭐ Score: ${anime.score ?: "N/A"}"
+        binding.tvEpisodes.text = "${anime.episodes ?: "?"} eps"
+        binding.tvRank.text = "Rank #${anime.malId}"
 
         Glide.with(this)
             .load(anime.images.jpg.largeImageUrl)
             .into(binding.ivBackdrop)
 
         binding.btnPlay.setOnClickListener {
-            Toast.makeText(this, "Playing ${anime.title}...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "▶ Playing \"${anime.title}\"...", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.btnAddList.setOnClickListener {
+            Toast.makeText(this, "✅ \"${anime.title}\" added to My List", Toast.LENGTH_SHORT).show()
         }
     }
 
